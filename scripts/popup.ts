@@ -20,8 +20,8 @@ const randomSolvedIndex = Math.floor(
 );
 const randomUnSolvedMessage = possibleUnSolvedMessages[randomUnsolvedIndex];
 const randomSolvedMessage = possibleSolvedMessages[randomSolvedIndex];
-const unsolvedDiv = document.getElementById('unsolved-message');
-const solvedDiv = document.getElementById('solved-message');
+const unsolvedDiv = document.getElementById('unsolved-message')!;
+const solvedDiv = document.getElementById('solved-message')!;
 unsolvedDiv.textContent = randomUnSolvedMessage;
 solvedDiv.textContent = randomSolvedMessage;
 chrome.runtime.sendMessage(
@@ -38,19 +38,19 @@ chrome.runtime.sendMessage(
     const currentLeetCodeProblemName = result.problemName;
     const currentLeetCodeProblemURL = result.problemURL;
     const leetcodeProblemSolved = result.leetCodeProblemSolved;
-    leetcodeButton.href = currentLeetCodeProblemURL;
-    leetcodeName.textContent = currentLeetCodeProblemName;
-    leetcodeButton.addEventListener('click', function (event) {
+    (leetcodeButton as HTMLAnchorElement).href = currentLeetCodeProblemURL;
+    leetcodeName!.textContent = currentLeetCodeProblemName;
+    leetcodeButton!.addEventListener('click', function (event) {
       event.preventDefault();
-      chrome.tabs.create({ url: this.href });
+      chrome.tabs.create({ url: (this as HTMLAnchorElement).href });
     });
 
     if (leetcodeProblemSolved || (response && response.problemSolved)) {
       unsolvedDiv.style.display = 'none';
       solvedDiv.style.display = 'block';
-      leetcodeButton.style.display = 'none';
-      questionMsg.style.display = 'none';
-      leetcodeName.textContent = `Today you solved ${currentLeetCodeProblemName}`;
+      leetcodeButton!.style.display = 'none';
+      (questionMsg as HTMLElement).style!.display = 'none';
+      leetcodeName!.textContent = `Today you solved ${currentLeetCodeProblemName}`;
     }
   }
 );

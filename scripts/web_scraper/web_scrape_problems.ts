@@ -7,7 +7,7 @@ const url = 'https://neetcode.io/practice/';
 // This function will add a delay to the code execution (in milliseconds)
 const addDelay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const initiatePuppeteer = async () => {
+export const initiatePuppeteer = async () => {
   const browser = await puppeteer.launch({
     headless: false,
     defaultViewport: null,
@@ -17,7 +17,7 @@ const initiatePuppeteer = async () => {
   return { browser, page };
 };
 
-const scrapeCategories = async (page) => {
+export const scrapeCategories = async (page) => {
   // Click on the all problems tab to get all the categories
   // Might need to find a better way to scrape the categories, since this is highly dependent on the website
   const tabLinks = await page.$$(
@@ -88,19 +88,19 @@ const scrapeProblemsFromTab = async (page, tabIndex) => {
 // Might need to find a better way to scrape the problems
 
 //Adding scrapeCategories to each function to ensure that the categories are scraped
-const scrapeBlind75Problems = async (page) => {
+export const scrapeBlind75Problems = async (page) => {
   return await scrapeProblemsFromTab(page, 0);
 };
 
-const scrapeNeetCode150Problems = async (page) => {
+export const scrapeNeetCode150Problems = async (page) => {
   return await scrapeProblemsFromTab(page, 1);
 };
 
-const scrapeAllProblems = async (page) => {
+export const scrapeAllProblems = async (page) => {
   return await scrapeProblemsFromTab(page, 2);
 };
 
-const saveProblemstoJSON = (filename, dirLocation, data) => {
+export const saveProblemstoJSON = (filename, dirLocation, data) => {
   const directory = path.join(__dirname, dirLocation); // Adjust the path based on your directory structure
   console.log(`Trying to save data to ${dirLocation}/${filename}`);
   try {

@@ -1,7 +1,7 @@
 // Listen for user interaction, e.g., when they click "Submit".
 document.addEventListener('click', function (event) {
   if (
-    event.target.matches('button[data-e2e-locator="console-submit-button"]')
+    (event.target as HTMLElement).matches('button[data-e2e-locator="console-submit-button"]')
   ) {
     // Tell the background script to start listening to network requests.
     chrome.runtime.sendMessage({ action: 'userClickedSubmit' });
@@ -23,7 +23,7 @@ function showCongratulationsModal() {
   // Add the event listener to the button
   // Might be a better way to handle this event, but it works for now.
   document.addEventListener('click', function (event) {
-    if (event.target.id === 'closeModalButton') {
+    if ((event.target as HTMLElement).id === 'closeModalButton') {
       modal.remove();
     }
   });

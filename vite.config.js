@@ -2,9 +2,9 @@ export default {
   build: {
     rollupOptions: {
       input: {
-        background: 'scripts/background.js',
-        content: 'scripts/content.js',
-        popup: 'scripts/popup.js',
+        background: 'scripts/background.ts',
+        content: 'scripts/content.ts',
+        popup: 'scripts/popup.ts',
       },
       output: {
         entryFileNames: '[name].js',

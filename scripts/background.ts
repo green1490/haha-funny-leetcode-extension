@@ -1,15 +1,18 @@
+import {SendResponse} from '../model/sendResponse'
+import { LeetCodeProblem } from '../model/leetCodeProblem'
+
 //Constants
 const LEETCODE_URL = 'https://leetcode.com';
 const RULE_ID = 1;
 // Helper functions
-const isLeetCodeUrl = (url) => url.includes(LEETCODE_URL);
+const isLeetCodeUrl = (url:string) => url.includes(LEETCODE_URL);
 
-const isSubmissionSuccessURL = (url) =>
+const isSubmissionSuccessURL = (url:string) =>
   url.includes('/submissions/detail/') && url.includes('/check/');
 
 const sendUserSolvedMessage = () => {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    chrome.tabs.sendMessage(tabs[0].id, { action: 'userSolvedProblem' });
+    chrome.tabs.sendMessage(tabs[0].id!, { action: 'userSolvedProblem' });
   });
 };
 
@@ -23,7 +26,7 @@ let leetCodeProblem = {
 let userJustSubmitted = false;
 
 // TODO: Need to find a way to filter out premium problems
-const generateRandomLeetCodeProblem = async () => {
+const generateRandomLeetCodeProblem = async ():Promise<LeetCodeProblem | undefined> => {
   try {
     const res = await fetch(
       chrome.runtime.getURL('leetcode-problems/blind75Problems.json')
@@ -40,12 +43,13 @@ const generateRandomLeetCodeProblem = async () => {
 };
 
 // Communication functions between background.js, popup.js, and content.js
-const onMessageReceived = (message, sender, sendResponse) => {
+const onMessageReceived = (message:any, sender:chrome.runtime.MessageSender, sendResponse:(respone:SendResponse) => void) => {
   switch (message.action) {
     case 'getProblemStatus':
-      sendResponse({
-        problemSolved: leetcodeProblemSolved,
-        problem: leetCodeProblem,
+      sendResponse(
+        {
+          problemSolved:leetcodeProblemSolved,
+          problem:leetCodeProblem,
       });
       break;
     case 'userClickedSubmit':
@@ -59,24 +63,26 @@ const onMessageReceived = (message, sender, sendResponse) => {
   }
 };
 
-async function setRedirectRule(newRedirectUrl) {
-  let newRedirectRule = {
+async function setRedirectRule(newRedirectUrl:string) {
+  let newRedirectRule:chrome.declarativeNetRequest.Rule = {
     id: RULE_ID,
     priority: 1,
     action: {
-      type: 'redirect',
-      redirect: { url: newRedirectUrl },
+      type: chrome.declarativeNetRequest.RuleActionType.REDIRECT,
+      redirect: {
+        url: newRedirectUrl
+      }
     },
     condition: {
-      urlFilter: '*://*/*',
-      excludedDomains: [
+      urlFilter:'*://*/*',
+      excludedInitiatorDomains: [
         'leetcode.com',
         'www.leetcode.com',
         'developer.chrome.com',
       ],
-      resourceTypes: ['main_frame'],
-    },
-  };
+      resourceTypes: [chrome.declarativeNetRequest.ResourceType.MAIN_FRAME]
+    }
+  }
 
   try {
     await chrome.declarativeNetRequest.updateDynamicRules({
@@ -90,23 +96,25 @@ async function setRedirectRule(newRedirectUrl) {
 }
 const updateStorage = async () => {
   try {
-    let { randomProblemURL, randomProblemName } =
-      await generateRandomLeetCodeProblem();
-    leetcodeProblemSolved = false;
-    leetCodeProblem = { url: randomProblemURL, name: randomProblemName };
-    await chrome.storage.local.set({
-      problemURL: randomProblemURL,
-      problemName: randomProblemName,
-      problemDate: new Date().toDateString(),
-      leetCodeProblemSolved: false,
-    });
-    await setRedirectRule(randomProblemURL);
+    let leetCodeProblemGenerated = await generateRandomLeetCodeProblem();
+    if (leetCodeProblemGenerated != undefined) {
+
+      leetcodeProblemSolved = false;
+      leetCodeProblem = { url: leetCodeProblemGenerated.randomProblemURL, name: leetCodeProblemGenerated.randomProblemName };
+      await chrome.storage.local.set({
+        problemURL: leetCodeProblemGenerated.randomProblemURL,
+        problemName: leetCodeProblemGenerated.randomProblemName,
+        problemDate: new Date().toDateString(),
+        leetCodeProblemSolved: false,
+      });
+      await setRedirectRule(leetCodeProblemGenerated.randomProblemURL);
+    }
   } catch (error) {
     console.error('Error updating storage:', error);
   }
 };
 
-const sendMessageToContentScript = (tabId, message, callback) => {
+const sendMessageToContentScript = (tabId:number, message:{action:string}, callback:(respone:any) => void) => {
   chrome.tabs.sendMessage(tabId, { action: 'ping' }, {}, (response) => {
     if (response && response.action === 'pong') {
       chrome.tabs.sendMessage(tabId, message, callback);
@@ -115,7 +123,7 @@ const sendMessageToContentScript = (tabId, message, callback) => {
     }
   });
 };
-const checkIfUserSolvedProblem = async (details) => {
+const checkIfUserSolvedProblem = async (details:chrome.webRequest.WebResponseCacheDetails) => {
   if (userJustSubmitted && isSubmissionSuccessURL(details.url)) {
     try {
       const response = await fetch(details.url);

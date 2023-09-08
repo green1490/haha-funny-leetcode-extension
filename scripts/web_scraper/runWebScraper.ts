@@ -1,11 +1,11 @@
-const {
-  initiatePuppeteer,
-  scrapeBlind75Problems,
-  scrapeNeetCode150Problems,
-  scrapeAllProblems,
-  scrapeCategories,
-  saveProblemstoJSON,
-} = require('./web_scrape_problems');
+import { 
+    initiatePuppeteer, 
+    scrapeBlind75Problems, 
+    scrapeNeetCode150Problems, 
+    scrapeAllProblems, 
+    scrapeCategories, 
+    saveProblemstoJSON 
+  } from './web_scrape_problems';
 
 (async () => {
   const { browser, page } = await initiatePuppeteer();

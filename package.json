@@ -19,12 +19,14 @@
   },
   "homepage": "https://github.com/poloa3998/leetcode-torture#readme",
   "dependencies": {
+    "@types/chrome": "^0.0.245",
     "puppeteer": "^21.1.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.22.11",
     "@babel/preset-env": "^7.22.10",
+    "@types/node": "^20.5.9",
     "babel-jest": "^29.6.4",
     "jest": "^29.6.4",
     "jest-puppeteer": "^9.0.0",
